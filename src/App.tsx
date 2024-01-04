@@ -1,9 +1,11 @@
-import ThreeCanvas from './components/canvas';
+import ThreeCanvas from '@/components/ui/canvas';
+import { Button } from "@/components/ui/button"
 
 function App() {
-  return (
+    return (
     <>
       <h1>Threact</h1>
+        <Button onClick={() => alert("Pushed!!")}>牡丹</Button>
       <ThreeCanvas /> 
     </>
   );

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 
-const useCanvasDraw = () =>{
+const useCanvasDraw = (color: number) =>{
   const canvasRef = useRef<HTMLCanvasElement>(null); 
   
   useEffect(() => {
@@ -18,7 +18,7 @@ const useCanvasDraw = () =>{
     const camera:THREE.PerspectiveCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     
     const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    const material = new THREE.MeshBasicMaterial( { color } );
     const cube = new THREE.Mesh( geometry, material );
     scene.add( cube );
     
@@ -41,7 +41,7 @@ const useCanvasDraw = () =>{
     animate();
   
     return () => renderer.dispose();
-  }, [])
+  }, [color])
 
   return canvasRef;
 }
