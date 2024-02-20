@@ -1,49 +1,59 @@
-import { useRef, useEffect } from "react";
-import * as THREE from "three";
+import { useRef, useEffect } from 'react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-const useCanvasDraw = () =>{
-  const canvasRef = useRef<HTMLCanvasElement>(null); 
-  
+const useCanvasDraw = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   useEffect(() => {
-    let canvas;
-    if (canvasRef.current){
-      canvas = canvasRef.current;
-    }        
-    // const sizes = {
-    //   width:  innerWidth,
-    //   height: innerHeight
-    // }
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
 
-    const scene:THREE.Scene = new THREE.Scene();
-    const camera:THREE.PerspectiveCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    
-    const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    const cube = new THREE.Mesh( geometry, material );
-    scene.add( cube );
-    
-    camera.position.z = 10;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true
-    });
-    renderer.setSize( window.innerWidth, window.innerHeight );
-     
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // 照明の追加
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+
+    const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, metalness: 0.5, roughness: 0.5 });
+    const torusKnot = new THREE.Mesh(geometry, material);
+    scene.add(torusKnot);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.autoRotate = true;
+
+    const onWindowResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+    window.addEventListener('resize', onWindowResize, false);
+
     const animate = () => {
       requestAnimationFrame(animate);
-
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
-
+      controls.update();
       renderer.render(scene, camera);
     };
     animate();
-  
-    return () => renderer.dispose();
-  }, [])
+
+    return () => {
+      window.removeEventListener('resize', onWindowResize);
+      renderer.dispose();
+      controls.dispose();
+    };
+  }, []);
 
   return canvasRef;
-}
+};
 
 export default useCanvasDraw;
